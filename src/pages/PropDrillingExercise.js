@@ -28,12 +28,31 @@ const RootComponent = (props) => {
   // Write a function called addProductToCart() that takes a product object as an argument
   // Example newProduct = { id: "p1", title: "Product 1", price: 1999 }
   // The function will add one new product into the cart
-
+  const addProductToCart = (product) => {
+    const prevCartItemTotal = cart.products.find(cartItem => cartItem.id === product.id)
+    const newCartItemTotal = { ...prevCartItemTotal, price: prevCartItemTotal.price + product.price, qty: prevCartItemTotal.qty + 1}
+    setCart((prevCart) => ({ 
+      ...prevCart, 
+      products: prevCart.products.map(cartProductItem => cartProductItem.id === newCartItemTotal.id ? newCartItemTotal : cartProductItem),
+      totalPrice: prevCart.totalPrice + product.price
+    })) 
+    
+  }
 
   // Step 2
   // Write a function called removeProductFromCart() that takes a product object as an argument
   // Example removedProduct = { id: "p1", title: "Product 1", price: 1999 }
   // The function will remove one product from the cart. The min value of quantity is 0
+  const removeProductFromCart = (product) => {
+    const prevCartItemTotal = cart.products.find(cartItem => cartItem.id === product.id)
+    const newCartItemTotal = {...prevCartItemTotal, price: prevCartItemTotal.price > 0 ? prevCartItemTotal.price - product.price : 0, qty: prevCartItemTotal.qty > 0 ? prevCartItemTotal.qty - 1 : 0}
+    setCart((prevCart) => ({ 
+      ...prevCart, 
+      products: prevCart.products.map(cartProductItem => cartProductItem.id === newCartItemTotal.id ? newCartItemTotal : cartProductItem),
+      totalPrice: prevCartItemTotal.price > 0 ? prevCart.totalPrice - product.price : prevCart.totalPrice,
+    }))
+    // setCart((prevCart) => (prevCart.products.filter(cartItem => cartItem.id !== product.id)))
+  }
 
   // Step 3
   // Pass the functions to the product components to handle the click event of the Add/Remove buttons
@@ -57,7 +76,7 @@ const RootComponent = (props) => {
       </Box>
       <Grid container spacing={2} p="1rem">
         <Grid item md={6}>
-          <ProductPage products={products} />
+          <ProductPage products={products} addProductToCart={addProductToCart} removeProductFromCart={removeProductFromCart}/>
         </Grid>
         <Grid item md={6}>
           <CartPage cart={cart} />
@@ -78,10 +97,10 @@ const ProductPage = (props) => {
       </Typography>
       <Grid container spacing={2} p="1rem">
         <Grid item sm={6}>
-          <ProductOne product={props.products[0]} />
+          <ProductOne product={props.products[0]} addProductToCart={props.addProductToCart} removeProductFromCart={props.removeProductFromCart} />
         </Grid>
         <Grid item sm={6}>
-          <ProductTwo product={props.products[1]} />
+          <ProductTwo product={props.products[1]} addProductToCart={props.addProductToCart} removeProductFromCart={props.removeProductFromCart}/>
         </Grid>
       </Grid>
     </WrapperBox>
@@ -126,10 +145,10 @@ const ProductOne = (props) => {
         </Grid>
         <Grid item xs={8} >
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Button variant="success" sx={{ width: "5rem" }} >
+            <Button variant="success" onClick={() => props.addProductToCart(props.product)} sx={{ width: "5rem" }} >
               Add
             </Button>
-            <Button variant="error" sx={{ width: "5rem" }}>
+            <Button variant="error" onClick={() => props.removeProductFromCart(props.product)} sx={{ width: "5rem" }}>
               Remove
             </Button>
           </div>
@@ -155,10 +174,10 @@ const ProductTwo = (props) => {
         </Grid>
         <Grid item xs={8} >
           <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <Button variant="success" size="sm" style={{ width: "5rem" }}>
+            <Button variant="success" onClick={() => props.addProductToCart(props.product)} size="sm" style={{ width: "5rem" }}>
               Add
             </Button>
-            <Button variant="error" size="sm" style={{ width: "5rem" }}>
+            <Button variant="error" onClick={() => props.removeProductFromCart(props.product)} size="sm" style={{ width: "5rem" }}>
               Remove
             </Button>
           </div>
